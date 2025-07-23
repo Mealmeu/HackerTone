@@ -63,8 +63,9 @@ if __name__ == '__main__':
     app.run(debug=True)
 """
 
-
+"""
 # CIL
+# "(x3) 제거함
 import requests
 import re
 
@@ -73,7 +74,7 @@ MODEL_NAME = "llama3"
 
 def make_enhanced_prompt(user_input: str) -> str:
 
-    template = f"""
+    template = f
 아래에 사용자가 간단하게 입력한 문장이나 키워드가 있습니다.
 당신은 AI 프롬프트 전문가로서, 이 간단한 입력을 바탕으로
 최대한 구체적이고 명확하며 창의적인 프롬프트를 새롭게 작성해야 합니다.
@@ -92,7 +93,7 @@ def make_enhanced_prompt(user_input: str) -> str:
 
 사용자가 입력한 문장은 다음과 같습니다: "{user_input}"
 이 내용을 바탕으로 AI가 사용할 최상의 프롬프트를 작성해 주세요.
-"""
+
     return template.strip()
 
 def generate_prompt(user_text: str) -> str:
@@ -120,3 +121,82 @@ if __name__ == "__main__":
             break
         result = generate_prompt(user_input)
         print("\n[생성된 프롬프트]\n", result, "\n")
+"""
+
+# alpha
+from pathlib import Path
+import requests
+import re
+import json
+from InquirerPy import inquirer
+
+OLLAMA_API_URL = "http://localhost:11434/api/generate"
+AIS_DIR = Path("ais")
+
+def load_all_prompts() -> list:
+    all_prompts = []
+    for json_file in AIS_DIR.glob("*.json"):
+        try:
+            with open(json_file, "r", encoding="utf-8") as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    for prompt in data:
+                        prompt["_source_file"] = json_file.name
+                        all_prompts.append(prompt)
+        except Exception as e:
+            print(f"[오류] 파일 {json_file.name} 불러오기 실패: {e}")
+    return all_prompts
+
+def select_prompt_model(prompt_list: list) -> dict:
+    choices = [{"name": f"{p['name']} ({p['_source_file']})", "value": p} for p in prompt_list]
+    selected = inquirer.select(
+        message="[사용할 프롬프트 선택]",
+        choices=choices,
+        pointer="> ",
+        instruction="방향키로 이동, Enter 선택"
+    ).execute()
+    return selected
+
+def make_enhanced_prompt(user_input: str, template: str) -> str:
+    return template.replace("{user_input}", user_input).strip()
+
+def generate_prompt(user_text: str, model: str, template: str) -> str:
+    enhanced_prompt = make_enhanced_prompt(user_text, template)
+    response = requests.post(
+        OLLAMA_API_URL,
+        json={
+            "model": model,
+            "prompt": enhanced_prompt,
+            "stream": False
+        }
+    )
+    if response.status_code == 200:
+        raw_answer = response.json().get("response", "").strip()
+        clean_answer = re.sub(r"<think>.*?</think>", "", raw_answer, flags=re.DOTALL).strip()
+        return clean_answer
+    else:
+        return "[오류: AI 응답 실패]"
+
+if __name__ == "__main__":
+    try:
+        prompt_list = load_all_prompts()
+        if not prompt_list:
+            print("사용 가능한 프롬프트가 없습니다. 'ais/' 폴더에 .json 파일을 추가해 주세요.")
+            exit(1)
+
+        selected_prompt = select_prompt_model(prompt_list)
+        model_name = selected_prompt["model"]
+        template_text = selected_prompt["template"]
+
+        while True:
+            user_input = input("\n>> 입력 (종료하려면 'exit') : ")
+            if user_input.lower() in ("exit", "quit"):
+                break
+            try:
+                result = generate_prompt(user_input, model_name, template_text)
+                print("\n[생성된 프롬프트]\n", result, "\n")
+            except Exception as e:
+                print(f"[오류] {e}")
+
+    except Exception as e:
+        print(f"[오류] {e}")
