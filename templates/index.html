@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>프롬프트 확장기</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>프롬프트 확장기</h1>
+    <textarea id="inputPrompt" placeholder="프롬프트 입력"></textarea>
+    <button id="submitBtn">확장하기</button>
+    <textarea id="outputPrompt" readonly placeholder="확장된 결과"></textarea>
+  </div>
+
+  <script>
+    document.getElementById("submitBtn").addEventListener("click", async () => {
+      const input = document.getElementById("inputPrompt").value;
+      const output = document.getElementById("outputPrompt");
+      output.value = "확장 중...";
+
+      try {
+        const res = await fetch("/api/expand", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: input })
+        });
+
+        const data = await res.json();
+        output.value = `${data.expanded_prompt}\n(생성 시간: ${data.time_taken})`;
+      } catch (error) {
+        output.value = "오류 발생";
+      }
+    });
+  </script>
+</body>
+</html>
