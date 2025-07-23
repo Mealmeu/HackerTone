@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 AI - 로그인</title>
+    <link rel="stylesheet" href="styles/auth.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="logo-section">
+                <div class="logo">
+                    <img src="icon.png" alt="AI Logo">
+                </div>
+                <h1>나만의 AI</h1>
+                <p>당신만의 AI 어시스턴트를 만들어보세요</p>
+            </div>
+            
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">로그인</button>
+                <button class="tab-btn" data-tab="signup">회원가입</button>
+            </div>
+            
+            <div class="tab-content active" id="login">
+                <form class="auth-form" id="loginForm">
+                    <div class="input-group">
+                        <input type="email" id="loginEmail" placeholder="이메일" required>
+                        <span class="input-icon">📧</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="loginPassword" placeholder="비밀번호" required>
+                        <span class="input-icon">🔒</span>
+                    </div>
+                    <button type="submit" class="auth-btn">로그인</button>
+                </form>
+            </div>
+            
+            <div class="tab-content" id="signup">
+                <form class="auth-form" id="signupForm">
+                    <div class="input-group">
+                        <input type="text" id="signupName" placeholder="이름" required>
+                        <span class="input-icon">👤</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="email" id="signupEmail" placeholder="이메일" required>
+                        <span class="input-icon">📧</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="signupPassword" placeholder="비밀번호" required>
+                        <span class="input-icon">🔒</span>
+                    </div>
+                    <div class="input-group">
+                        <input type="password" id="confirmPassword" placeholder="비밀번호 확인" required>
+                        <span class="input-icon">🔒</span>
+                    </div>
+                    <button type="submit" class="auth-btn">회원가입</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="scripts/auth.js"></script>
+</body>
+</html>
