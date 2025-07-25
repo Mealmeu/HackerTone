@@ -2,8 +2,8 @@
 주제: 무한(無限)
 
 ```
-$env:ORIGINS="*"
-serve
+$env:OLLAMA_ORIGINS="*"
+ollama serve
 ```
 
 ```
